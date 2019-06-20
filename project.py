@@ -102,29 +102,31 @@ def reRun(quad, field_b, ws):
 
     #--------- sizes for each WS and transport matrices
 	matrx_all_X = []
-	sizes_X_arr = []
 	#for ws in wss:
 	state = traj.stateForElement(ws.getId())
 	pos = state.getPosition()
 	xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
 	mtrx = state.getResponseMatrix()
 	#----------------------
-	sizes_X_arr.append(xRMS_Size)
 	#--------elements of the transport matrix
 	a11 = mtrx.getElem(0,0)
 	a12 = mtrx.getElem(0,1)
 	matrx_all_X.append([a11**2, 2*a11*a12,a12**2])
 	
-	for a in sizes_X_arr:
-		print(a)
+	return xRMS_Size
 
-	return sizes_X_arr
-
+results = []
 field0 = quads[0].getDfltField()
-for pos in range(-5, 5):
+for pos in range(-40, 40):
 	field = field0 * (1 + pos/100.)
 	print('*'*40)
-	size0_arr = reRun(quads[0], field, wss[0])
+	xsize = reRun(quads[0], field, wss[0])
+	results.append((field, xsize))
+
+with open('data.txt', 'w') as f:
+	for ix, (field, xsize) in enumerate(results):
+		print('Run: {:d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
+		f.write('{}    {}\n'.format(field, xsize))
 
 #=========================================
 #  Only x-axis analysis
