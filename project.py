@@ -101,32 +101,34 @@ def reRun(quad, field_b, ws):
 	print "ws=",ws.getId()," pos[m]= %8.3f "%pos," (PhaseX, PhaseY) =  (%6.1f,%6.1f)"%(phaseX,phaseY)
 
     #--------- sizes for each WS and transport matrices
-	matrx_all_X = []
 	#for ws in wss:
 	state = traj.stateForElement(ws.getId())
 	pos = state.getPosition()
 	xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
 	mtrx = state.getResponseMatrix()
-	#----------------------
 	#--------elements of the transport matrix
 	a11 = mtrx.getElem(0,0)
 	a12 = mtrx.getElem(0,1)
-	matrx_all_X.append([a11**2, 2*a11*a12,a12**2])
+	m_row = [a11**2, 2*a11*a12,a12**2]
 	
-	return xRMS_Size
+	return xRMS_Size, m_row
 
+matrx_all_X = []
+sizes_X_arr = []
 results = []
 field0 = quads[0].getDfltField()
 field_center = -85  # after scan
 for pos in range(-15, 15):
 	field = field_center * (1 + pos/100.)
 	print('*'*40)
-	xsize = reRun(quads[0], field, wss[0])
+	xsize, mtrx_row = reRun(quads[0], field, wss[0])
+	matrx_all_X.append(mtrx_row)
+	sizes_X_arr.append(xsize)
 	results.append((field, xsize))
 
 with open('data.txt', 'w') as f:
 	for ix, (field, xsize) in enumerate(results):
-		print('Run: {:d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
+		print('Run: {:2d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
 		f.write('{}    {}\n'.format(field, xsize))
 
 #=========================================
@@ -135,7 +137,6 @@ with open('data.txt', 'w') as f:
 sigma_rel_err = 0.05
 
 n_ws = len(matrx_all_X)
-
 mMatrX = Matrix(matrx_all_X,n_ws,3)
 
 sigma2Vector = Matrix(n_ws,1)
@@ -169,16 +170,6 @@ print "========================================"
 print "x2, xxp, xp2 = ",   x2, xxp, xp2
 print "========================================"
 
-print "  WS           Size Init[mm]  Size+Gauss[mm]  Size Calculated[mm] "
-for ind in range(n_ws):
-	ws = wss[ind]
-	size_init = sizes_X_arr[ind]*1000.
-	size_gauss = math.sqrt(sigma2Vector.get(ind,0))*1000.
-	size_calc = math.sqrt(matrx_all_X[ind][0]*x2 + matrx_all_X[ind][1]*xxp + matrx_all_X[ind][2]*xp2)*1000.
-	print ws.getId(),"  %8.3f    %8.3f     %8.3f "%(size_init,size_gauss,size_calc)
-
-print "==================================================="
-
 # Calculate some other parameters at the start of HEBT2
 emitX = math.sqrt(x2*xp2-xxp*xxp)
 alphX = -xxp/emitX
@@ -202,10 +193,10 @@ print "emitt [pi*mm*mrad] = %8.4f "%(emitX*1.0e+6)," +-  %8.4f "%(sig_emitt*1.0e
 print "========================================"
 
 #------------------------------------------
-state_init = traj.initialState()
-x_rms_ini = state_init.twissParameters()[0].getEnvelopeRadius()
-
-twissX = state_init.twissParameters()[0]
-print "Initial model Twiss X=",twissX
+#state_init = traj.initialState()
+#x_rms_ini = state_init.twissParameters()[0].getEnvelopeRadius()
+#
+#twissX = state_init.twissParameters()[0]
+#print "Initial model Twiss X=",twissX
 
 print "Done."
