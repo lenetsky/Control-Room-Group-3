@@ -90,17 +90,17 @@ def reRun(quad, field_b, ws):
 	state = traj.stateForElement(quad.getId())
 	pos = state.getPosition()
 	print "quad=",quad.getId()," pos[m]= %8.3f "%pos
-	quad_mtrx = state.getResponseMatrix()
+	quad_mtrx = state.getResponseMatrix()  # Q
 
 	#for ws in wss:
 	state = traj.stateForElement(ws.getId())
-	ws_mtrx = state.getResponseMatrix()
-	mtrx_s = ws_mtrx.times(quad_mtrx.inverse())
-	mtrx_x = [
-		mtrx_s.getElem(0,0), mtrx_s.getElem(0,1),
-		mtrx_s.getElem(1,0), mtrx_s.getElem(1,1)
+	ws_mtrx = state.getResponseMatrix()  # R
+	mtrx_s7 = ws_mtrx.times(quad_mtrx.inverse())  # S 7x7
+	mtrx_s = [
+		mtrx_s7.getElem(0,0), mtrx_s7.getElem(0,1),
+		mtrx_s7.getElem(1,0), mtrx_s7.getElem(1,1)
 	]
-	print(mtrx_x)
+	# print(mtrx_s)
 	pos = state.getPosition()
 	phase_arr = beam_calculator.computeBetatronPhase(state)
 	phaseX = phase_arr.getx()*180./math.pi
@@ -118,25 +118,27 @@ def reRun(quad, field_b, ws):
 	a12 = mtrx.getElem(0,1)
 	m_row = [a11**2, 2*a11*a12,a12**2]
 	
-	return xRMS_Size, m_row
+	return xRMS_Size, m_row, mtrx_s
 
+matrx_all_S = []
 matrx_all_X = []
 sizes_X_arr = []
 results = []
 field0 = quads[0].getDfltField()
 field_center = -85  # after scan
 for pos in range(-15, 15):
-	field = field_center * (1 + pos/100.)
 	print('*'*40)
-	xsize, mtrx_row = reRun(quads[0], field, wss[0])
+	field = field_center * (1 + pos/100.)
+	xsize, mtrx_row, mtrx_s = reRun(quads[0], field, wss[0])
 	matrx_all_X.append(mtrx_row)
+	matrx_all_S.append(mtrx_s)
 	sizes_X_arr.append(xsize)
-	results.append((field, xsize))
+	results.append((field, xsize, mtrx_s))
 
 with open('data.txt', 'w') as f:
-	for ix, (field, xsize) in enumerate(results):
+	for ix, (field, xsize, mtrx_s) in enumerate(results):
 		print('Run: {:2d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
-		f.write('{}    {}\n'.format(field, xsize))
+		f.write('{}    {}   {}\n'.format(field, xsize, mtrx_s[1]))  # S12
 
 #=========================================
 #  Only x-axis analysis
