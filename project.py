@@ -59,45 +59,59 @@ scenario.setSynchronizationMode(Scenario.SYNC_MODE_DESIGN)
 tracker = AlgorithmFactory.createEnvTrackerAdapt(accSeq)
 tracker.setProbeUpdatePolicy(tracker.UPDATE_ALWAYS)
 		
-probe = ProbeFactory.getEnvelopeProbe(accSeq,tracker)
-#---- peak current in [A]
-peak_current = 0.000
-probe.setBeamCurrent(peak_current)
-
 #---- initial kinetic energy in [MeV]
-eKin_init = probe.getKineticEnergy()/1.0e+6
 
-scenario.setProbe(probe)
-scenario.resync()
-scenario.run()
+def reRun(quad_b):
+	quads[0].setDfltField(quad_b)
+	print("Setting Quad0 to {}".format(quad_b))
 
-traj = scenario.getProbe().getTrajectory()
+	probe = ProbeFactory.getEnvelopeProbe(accSeq,tracker)
+#---- peak current in [A]
+	peak_current = 0.000
+	probe.setBeamCurrent(peak_current)
 
-beam_calculator = CalculationsOnBeams(traj)
+	eKin_init = probe.getKineticEnergy()/1.0e+6
 
-for ws in wss:
-	state = traj.stateForElement(ws.getId())
-	pos = state.getPosition()
-	phase_arr = beam_calculator.computeBetatronPhase(state)
-	phaseX = phase_arr.getx()*180./math.pi
-	phaseY = phase_arr.gety()*180./math.pi
-	print "ws=",ws.getId()," pos[m]= %8.3f "%pos," (PhaseX, PhaseY) =  (%6.1f,%6.1f)"%(phaseX,phaseY)
+	scenario.setProbe(probe)
+	scenario.resync()
+	scenario.run()
+	traj = scenario.getProbe().getTrajectory()
 
-#--------- sizes for each WS and transport matrices
-matrx_all_X = []
-sizes_X_arr = []
-for ws in wss:
-	state = traj.stateForElement(ws.getId())
-	pos = state.getPosition()
-	xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
-	mtrx = state.getResponseMatrix()
-	#----------------------
-	sizes_X_arr.append(xRMS_Size)
-	#--------elements of the transport matrix
-	a11 = mtrx.getElem(0,0)
-	a12 = mtrx.getElem(0,1)
-	matrx_all_X.append([a11**2, 2*a11*a12,a12**2])
+	beam_calculator = CalculationsOnBeams(traj)
+
+	for ws in wss:
+		state = traj.stateForElement(ws.getId())
+		pos = state.getPosition()
+		phase_arr = beam_calculator.computeBetatronPhase(state)
+		phaseX = phase_arr.getx()*180./math.pi
+		phaseY = phase_arr.gety()*180./math.pi
+		print "ws=",ws.getId()," pos[m]= %8.3f "%pos," (PhaseX, PhaseY) =  (%6.1f,%6.1f)"%(phaseX,phaseY)
+
+    #--------- sizes for each WS and transport matrices
+	matrx_all_X = []
+	sizes_X_arr = []
+	for ws in wss:
+		state = traj.stateForElement(ws.getId())
+		pos = state.getPosition()
+		xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
+		mtrx = state.getResponseMatrix()
+		#----------------------
+		sizes_X_arr.append(xRMS_Size)
+		#--------elements of the transport matrix
+		a11 = mtrx.getElem(0,0)
+		a12 = mtrx.getElem(0,1)
+		matrx_all_X.append([a11**2, 2*a11*a12,a12**2])
 	
+	for a in sizes_X_arr:
+		print(a)
+
+	return sizes_X_arr
+	
+print('*'*40)
+size0_arr = reRun(quads[0].getDfltField())
+print('*'*40)
+size1_arr = reRun(quads[0].getDfltField()*1.05)
+
 #=========================================
 #  Only x-axis analysis
 #=========================================
