@@ -84,12 +84,11 @@ def reRun(quad, field_b, ws):
 	scenario.run()
 	traj = scenario.getProbe().getTrajectory()
 
-	beam_calculator = CalculationsOnBeams(traj)
-
 	#for quad in quads:
 	state = traj.stateForElement(quad.getId())
 	pos = state.getPosition()
-	print "quad=",quad.getId()," pos[m]= %8.3f "%pos
+	length = quad.getLength()
+	print "quad=",quad.getId()," pos[m]= %8.3f "%pos, "len[m]=%8.3f"%length
 	quad_mtrx = state.getResponseMatrix()  # Q
 
 	#for ws in wss:
@@ -102,10 +101,7 @@ def reRun(quad, field_b, ws):
 	]
 	# print(mtrx_s)
 	pos = state.getPosition()
-	phase_arr = beam_calculator.computeBetatronPhase(state)
-	phaseX = phase_arr.getx()*180./math.pi
-	phaseY = phase_arr.gety()*180./math.pi
-	print "ws=",ws.getId()," pos[m]= %8.3f "%pos," (PhaseX, PhaseY) =  (%6.1f,%6.1f)"%(phaseX,phaseY)
+	print "ws=",ws.getId()," pos[m]= %8.3f "%pos
 
     #--------- sizes for each WS and transport matrices
 	#for ws in wss:
