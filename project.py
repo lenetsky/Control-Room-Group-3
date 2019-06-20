@@ -117,8 +117,9 @@ def reRun(quad, field_b, ws):
 
 results = []
 field0 = quads[0].getDfltField()
-for pos in range(-40, 40):
-	field = field0 * (1 + pos/100.)
+field_center = -85  # after scan
+for pos in range(-15, 15):
+	field = field_center * (1 + pos/100.)
 	print('*'*40)
 	xsize = reRun(quads[0], field, wss[0])
 	results.append((field, xsize))
