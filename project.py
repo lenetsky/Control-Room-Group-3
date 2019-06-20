@@ -90,10 +90,17 @@ def reRun(quad, field_b, ws):
 	state = traj.stateForElement(quad.getId())
 	pos = state.getPosition()
 	print "quad=",quad.getId()," pos[m]= %8.3f "%pos
+	quad_mtrx = state.getResponseMatrix()
 
 	#for ws in wss:
 	state = traj.stateForElement(ws.getId())
-	# print(state)
+	ws_mtrx = state.getResponseMatrix()
+	mtrx_s = ws_mtrx.times(quad_mtrx.inverse())
+	mtrx_x = [
+		mtrx_s.getElem(0,0), mtrx_s.getElem(0,1),
+		mtrx_s.getElem(1,0), mtrx_s.getElem(1,1)
+	]
+	print(mtrx_x)
 	pos = state.getPosition()
 	phase_arr = beam_calculator.computeBetatronPhase(state)
 	phaseX = phase_arr.getx()*180./math.pi
