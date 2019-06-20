@@ -112,6 +112,7 @@ def reRun(quad, field_b, ws):
 	state = traj.stateForElement(ws.getId())
 	pos = state.getPosition()
 	xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
+	print(state.twissParameters()[0])
 	mtrx = state.getResponseMatrix()
 	#--------elements of the transport matrix
 	a11 = mtrx.getElem(0,0)
