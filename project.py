@@ -117,8 +117,8 @@ matrx_all_S = []
 matrx_all_X = []
 sizes_X_arr = []
 results = []
+field_center = -85  # 1st
 field0 = quads[0].getDfltField()
-field_center = -85  # after scan
 for pos in range(-15, 15):
 	print('*'*40)
 	field = field_center * (1 + pos/100.)
@@ -133,6 +133,25 @@ with open('data.txt', 'w') as f:
 		print('Run: {:2d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
 		f.write('{}    {}   {}\n'.format(field, xsize, mtrx_s[1]))  # S12
 
+field_center = -28  # last
+quads[0].setDfltField(field0)
+matrx_all_S = []
+matrx_all_X = []
+sizes_X_arr = []
+results = []
+for pos in range(-15, 15):
+	print('*'*40)
+	field = field_center * (1 + pos/100.)
+	xsize, mtrx_row, mtrx_s = reRun(quads[-1], field, wss[-1])
+	matrx_all_X.append(mtrx_row)
+	matrx_all_S.append(mtrx_s)
+	sizes_X_arr.append(xsize)
+	results.append((field, xsize, mtrx_s))
+
+with open('data1.txt', 'w') as f:
+	for ix, (field, xsize, mtrx_s) in enumerate(results):
+		print('Run: {:2d} Field: {:8f} xRMS size: {:12f}'.format(ix, field, xsize))
+		f.write('{}    {}   {}\n'.format(field, xsize, mtrx_s[1]))  # S12
 #=========================================
 #  Only x-axis analysis
 #=========================================
