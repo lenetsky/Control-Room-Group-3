@@ -104,15 +104,11 @@ def reRun(quad, field_b, ws):
 	print "ws=",ws.getId()," pos[m]= %8.3f "%pos
 
     #--------- sizes for each WS and transport matrices
-	#for ws in wss:
-	state = traj.stateForElement(ws.getId())
-	pos = state.getPosition()
 	xRMS_Size = state.twissParameters()[0].getEnvelopeRadius()
 	print(state.twissParameters()[0])
-	mtrx = state.getResponseMatrix()
 	#--------elements of the transport matrix
-	a11 = mtrx.getElem(0,0)
-	a12 = mtrx.getElem(0,1)
+	a11 = ws_mtrx.getElem(0,0)
+	a12 = ws_mtrx.getElem(0,1)
 	m_row = [a11**2, 2*a11*a12,a12**2]
 	
 	return xRMS_Size, m_row, mtrx_s
