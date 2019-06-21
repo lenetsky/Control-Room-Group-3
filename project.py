@@ -193,6 +193,10 @@ sig2_emit2 = xp2**2*sig2_x2 + x2**2*sig2_xp2 + 4*xxp**2*sig2_x_xp + 2*x2*xp2*sig
 sig_emitt = 0.5*math.sqrt(abs(sig2_emit2))/emitX 
 print "emitt [pi*mm*mrad] = %8.4f "%(emitX*1.0e+6)," +-  %8.4f "%(sig_emitt*1.0e+6)
 print "========================================"
+print "Curve fitting method:"
+emitX_fit = 2.839e-6
+sig_emitt_fit = 0.5*math.sqrt(abs(sig2_emit2))/emitX_fit
+print "emitt [pi*mm*mrad] = %8.4f "%(emitX_fit*1e6)," +-  %8.4f "%(sig_emitt_fit*1.0e+6)
 
 #------------------------------------------
 #state_init = traj.initialState()
