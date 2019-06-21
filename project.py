@@ -43,13 +43,13 @@ wss = accSeq.getAllNodesOfType(ProfileMonitor.s_strType)
 #wss = wss[0:3]
 
 for ws in wss:
-	print "ws=",ws.getId()," pos=",accSeq.getPosition(ws)
+	print('quad: {:16s}  pos={:8.3f}m'.format(ws.getId(), accSeq.getPosition(ws)))
 
 print "==========================="
 
 quads = accSeq.getAllNodesOfType(Quadrupole.s_strType)
 for quad in quads:
-	print "quad=",quad.getId()," B=",quad.getDfltField()
+	print('quad: {:16s}  B={:8.3f}  pos={:8.3f}m'.format(quad.getId(), quad.getDfltField(), accSeq.getPosition(quad)))
 
 print "==========================="
 
